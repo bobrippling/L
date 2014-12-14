@@ -1,10 +1,12 @@
+#include <string.h>
+
 #include "alloc.h"
 
 #include "expr.h"
 
 struct expr
 {
-	enum expr_kind
+	enum kind
 	{
 		CALL,
 		IDENT,
@@ -20,9 +22,11 @@ struct expr
 		char *ident;
 		long long num;
 	} u;
+
+	void *extra;
 };
 
-static expr *expr_new(enum expr_kind k)
+static expr *expr_new(enum kind k)
 {
 	expr *e = tnew(e);
 	e->type = k;
@@ -49,6 +53,28 @@ expr *expr_new_num(long long l)
 	expr *e = expr_new(NUM);
 	e->u.num = l;
 	return e;
+}
+
+enum expr_kind expr_kind(expr *e)
+{
+	switch(e->type){
+		case CALL:
+			if(!strcmp(e->u.ident, "define"))
+				return expr_define;
+
+			if(!strcmp(e->u.ident, "\\"))
+				return expr_lambda;
+
+			return expr_call;
+
+		case IDENT: return expr_ident;
+		case NUM: return expr_num;
+	}
+}
+
+void expr_recurse(expr *e, void *ctx, void fn(expr *, void *))
+{
+
 }
 
 static void expr_print_indent(expr *e, FILE *f, size_t indent)

@@ -5,6 +5,7 @@
 #include <errno.h>
 
 #include "parse.h"
+#include "run.h"
 
 static const char *progname;
 
@@ -35,7 +36,7 @@ int main(int argc, char **argv)
 
 	expr *e;
 	while((e = parse(tokgen)))
-		expr_print(e, stdout);
+		run_expr(e);
 
 	fclose(f);
 
